@@ -66,6 +66,7 @@ export default {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        display: ["'Plus Jakarta Sans'", "Inter", "system-ui", "sans-serif"],
       },
       boxShadow: {
         card: "0 1px 2px 0 rgba(16, 24, 40, 0.06), 0 1px 3px 0 rgba(16, 24, 40, 0.10)",
@@ -80,10 +81,12 @@ export default {
         "fade-in": "fadeIn 0.2s ease-out",
         "slide-up": "slideUp 0.25s ease-out",
         "slide-in-right": "slideInRight 0.25s ease-out",
+        "pin-pulse": "pinPulse 2.6s ease-out infinite",
       },
       keyframes: {
         fadeIn: { "0%": { opacity: 0 }, "100%": { opacity: 1 } },
         slideUp: { "0%": { opacity: 0, transform: "translateY(8px)" }, "100%": { opacity: 1, transform: "translateY(0)" } },
+        pinPulse: { "0%": { transform: "scale(1)", opacity: 0.35 }, "100%": { transform: "scale(4.2)", opacity: 0 } },
         slideInRight: { "0%": { opacity: 0, transform: "translateX(16px)" }, "100%": { opacity: 1, transform: "translateX(0)" } },
       },
     },
