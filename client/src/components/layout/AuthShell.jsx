@@ -9,14 +9,11 @@ const PERKS = [
   { icon: ShieldCheck, text: "Stock levels checked by pharmacy staff" },
 ];
 
-const PHARMACIST_PHOTO =
-  "https://images.unsplash.com/photo-1580281657529-557a6abb6387?auto=format&fit=crop&w=1200&q=70";
-
-export default function AuthShell({ children }) {
+export default function AuthShell({ children, image, imageAlt = "Pharmacy care" }) {
   return (
     <div className="min-h-screen grid lg:grid-cols-[1.05fr_1fr] bg-white">
       <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-primary-800 via-primary-700 to-teal-700 text-white p-12 xl:p-16">
-        <Photo src={PHARMACIST_PHOTO} className="absolute inset-0 w-full h-full object-cover" />
+        <Photo src={image} alt={imageAlt} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
         <PlusPattern id="auth-plus" className="absolute inset-0 text-white opacity-[0.06]" />
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-teal-400/25 blur-3xl" aria-hidden="true" />
@@ -25,7 +22,7 @@ export default function AuthShell({ children }) {
         <Capsule className="absolute bottom-40 right-24 w-20 -rotate-[24deg] drop-shadow-xl" a="#8db8ff" />
 
         <div className="relative">
-          <Logo to="/login" tone="light" />
+          <Logo to="/" tone="light" />
         </div>
 
         <div className="relative max-w-md">
@@ -58,7 +55,7 @@ export default function AuthShell({ children }) {
       <main className="flex items-center justify-center px-5 py-12 sm:px-10 bg-slate-50 lg:bg-white">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex justify-center mb-8">
-            <Logo to="/login" />
+            <Logo to="/" />
           </div>
           {children}
         </div>
