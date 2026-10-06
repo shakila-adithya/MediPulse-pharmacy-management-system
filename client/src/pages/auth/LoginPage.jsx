@@ -1,13 +1,19 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Mail, Lock, LogIn } from "lucide-react";
 import AuthShell from "../../components/layout/AuthShell";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
+import useAuth from "../../hooks/useAuth";
+
+const LOGIN_IMAGE = "/auth-login-pharmacist.png";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "", remember: false });
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
   const validate = () => {
     const next = {};
@@ -23,11 +29,19 @@ export default function LoginPage() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    validate();
+    if (!validate()) return;
+
+    login({ remember: form.remember });
+    const from = location.state?.from;
+    const destination = from ? `${from.pathname}${from.search || ""}${from.hash || ""}` : "/medicines";
+    navigate(destination, { replace: true });
   };
 
   return (
-    <AuthShell>
+    <AuthShell
+      image={LOGIN_IMAGE}
+      imageAlt="Pharmacist reviewing medication in a modern pharmacy"
+    >
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">Welcome back</h1>
         <p className="text-sm text-slate-500 mt-1.5 mb-7">Sign in to your MediPulse account</p>

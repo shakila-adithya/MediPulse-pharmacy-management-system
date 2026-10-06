@@ -6,6 +6,8 @@ import Input from "../../components/common/Input";
 import Select from "../../components/common/Select";
 import Button from "../../components/common/Button";
 
+const REGISTER_IMAGE = "/auth-register-care.png";
+
 const ROLE_OPTIONS = [
   { value: "customer", label: "Customer" },
   { value: "pharmacy", label: "Pharmacy Staff" },
@@ -54,7 +56,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthShell>
+    <AuthShell
+      image={REGISTER_IMAGE}
+      imageAlt="Pharmacist helping a customer at a pharmacy counter"
+    >
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">Create your account</h1>
         <p className="text-sm text-slate-500 mt-1.5 mb-7">Join MediPulse to find medicines near you</p>
