@@ -1,0 +1,1 @@
+A web application that helps users find available medicines at nearby pharmacies, check prices and stock, make reservations, and receive availability notifications. Pharmacy staff can manage inventory and reservations, while administrators can manage users, pharmacies, medicines, and system activities.
