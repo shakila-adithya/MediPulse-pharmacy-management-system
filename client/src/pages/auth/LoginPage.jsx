@@ -11,6 +11,7 @@ const LOGIN_IMAGE = "/auth-login-pharmacist.png";
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "", remember: false });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
@@ -27,14 +28,22 @@ export default function LoginPage() {
     return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validate()) return;
 
-    login({ remember: form.remember });
-    const from = location.state?.from;
-    const destination = from ? `${from.pathname}${from.search || ""}${from.hash || ""}` : "/medicines";
-    navigate(destination, { replace: true });
+    setIsSubmitting(true);
+    setErrors({});
+    try {
+      await login({ email: form.email, password: form.password, remember: form.remember });
+      const from = location.state?.from;
+      const destination = from ? `${from.pathname}${from.search || ""}${from.hash || ""}` : "/medicines";
+      navigate(destination, { replace: true });
+    } catch (error) {
+      setErrors({ form: error.status === 401 ? "Invalid email or password." : "Unable to connect to MediPulse. Please try again." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -47,6 +56,7 @@ export default function LoginPage() {
         <p className="text-sm text-slate-500 mt-1.5 mb-7">Sign in to your MediPulse account</p>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          {errors.form && <p role="alert" className="rounded-lg bg-danger-50 px-3 py-2 text-sm text-danger-700">{errors.form}</p>}
           <Input
             label="Email Address"
             type="email"
@@ -85,7 +95,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <Button type="submit" fullWidth size="lg" icon={LogIn}>
+          <Button type="submit" fullWidth size="lg" icon={LogIn} isLoading={isSubmitting}>
             Login
           </Button>
         </form>

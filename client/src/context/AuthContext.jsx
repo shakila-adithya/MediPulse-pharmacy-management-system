@@ -1,28 +1,31 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AuthContext from "./authContextValue";
-const AUTH_KEY = "medipulse_authenticated";
-
-function hasStoredSession() {
-  return window.localStorage.getItem(AUTH_KEY) === "true" || window.sessionStorage.getItem(AUTH_KEY) === "true";
-}
+import apiClient from "../services/apiClient";
 
 export function AuthProvider({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(hasStoredSession);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback(({ remember = false } = {}) => {
-    const storage = remember ? window.localStorage : window.sessionStorage;
-    const otherStorage = remember ? window.sessionStorage : window.localStorage;
-
-    storage.setItem(AUTH_KEY, "true");
-    otherStorage.removeItem(AUTH_KEY);
-    setIsAuthenticated(true);
+  useEffect(() => {
+    let active = true;
+    apiClient.get("/auth/me")
+      .then(({ user: currentUser }) => { if (active) setUser(currentUser); })
+      .catch(() => { if (active) setUser(null); })
+      .finally(() => { if (active) setIsLoading(false); });
+    return () => { active = false; };
   }, []);
 
-  const logout = useCallback(() => {
-    window.localStorage.removeItem(AUTH_KEY);
-    window.sessionStorage.removeItem(AUTH_KEY);
-    setIsAuthenticated(false);
+  const login = useCallback(async ({ email, password, remember = false }) => {
+    const response = await apiClient.post("/auth/login", { email, password, remember });
+    setUser(response.user);
+    return response.user;
   }, []);
 
-  return <AuthContext.Provider value={{ isAuthenticated, login, logout }}>{children}</AuthContext.Provider>;
+  const logout = useCallback(async () => {
+    await apiClient.post("/auth/logout");
+    setUser(null);
+  }, []);
+
+  const value = useMemo(() => ({ user, isAuthenticated: Boolean(user), isLoading, login, logout }), [user, isLoading, login, logout]);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Phone, Lock, UserPlus } from "lucide-react";
 import AuthShell from "../../components/layout/AuthShell";
 import Input from "../../components/common/Input";
 import Select from "../../components/common/Select";
 import Button from "../../components/common/Button";
+import apiClient from "../../services/apiClient";
 
 const REGISTER_IMAGE = "/auth-register-care.png";
 
 const ROLE_OPTIONS = [
   { value: "customer", label: "Customer" },
   { value: "pharmacy", label: "Pharmacy Staff" },
-  { value: "admin", label: "Administrator" },
 ];
 
 export default function RegisterPage() {
@@ -25,6 +25,9 @@ export default function RegisterPage() {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const update = (key) => (event) => setForm({ ...form, [key]: event.target.value });
 
@@ -50,9 +53,21 @@ export default function RegisterPage() {
     return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    validate();
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    setSuccess("");
+    try {
+      await apiClient.post("/auth/register", form);
+      setSuccess("Account created successfully. Redirecting to login…");
+      setTimeout(() => navigate("/login", { replace: true }), 800);
+    } catch (error) {
+      setErrors(error.fields && Object.keys(error.fields).length ? error.fields : { form: error.message || "Unable to create your account." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -65,6 +80,8 @@ export default function RegisterPage() {
         <p className="text-sm text-slate-500 mt-1.5 mb-7">Join MediPulse to find medicines near you</p>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          {errors.form && <p role="alert" className="rounded-lg bg-danger-50 px-3 py-2 text-sm text-danger-700">{errors.form}</p>}
+          {success && <p role="status" className="rounded-lg bg-success-50 px-3 py-2 text-sm text-success-700">{success}</p>}
           <Input
             label="Full Name"
             icon={User}
@@ -129,7 +146,7 @@ export default function RegisterPage() {
             required
           />
 
-          <Button type="submit" fullWidth size="lg" icon={UserPlus}>
+          <Button type="submit" fullWidth size="lg" icon={UserPlus} isLoading={isSubmitting}>
             Create Account
           </Button>
         </form>
