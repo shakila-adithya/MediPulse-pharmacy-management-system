@@ -1,9 +1,30 @@
-
 name: medipulse
 
 services:
+
+  # FRONTEND - React + Nginx
+  frontend:
+    image: medipulse-frontend:dev
+
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+
+    container_name: medipulse-frontend
+
+    ports:
+      - "127.0.0.1:8080:80"
+
+    depends_on:
+      backend:
+        condition: service_started
+
+    restart: unless-stopped
+
+  # BACKEND - Node.js + Express + Prisma
   backend:
     image: medipulse-backend:dev
+
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -16,7 +37,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 4000
-      CLIENT_ORIGIN: http://localhost:5173
+      CLIENT_ORIGIN: http://localhost:8080
       SESSION_SECRET: ${SESSION_SECRET}
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
 
@@ -29,8 +50,12 @@ services:
       - -c
       - npx prisma migrate deploy && npm start
 
+    restart: unless-stopped
+
+  # DATABASE - PostgreSQL 16
   db:
     image: postgres:16
+
     container_name: medipulse-postgres
 
     ports:
@@ -45,10 +70,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
       interval: 5s
       timeout: 5s
       retries: 10
 
+    restart: unless-stopped
+
+# PERSISTENT STORAGE
 volumes:
   postgres_data:
